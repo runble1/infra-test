@@ -8,8 +8,6 @@ name: trivy
 on:
   push:
     branches: ["main"]
-    paths:
-      - "infra/**"
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]

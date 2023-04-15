@@ -14,6 +14,38 @@ env:
   ECR_REPOSITORY: nextjs-github
 
 jobs:
+  security_check:
+    # git commit 時のメッセージに [skip security] が含まれている場合はスキップ
+    if: ${{ !contains(github.event.head_commit.message, '[skip security]') }}
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Trivy vulnerability scanner in IaC mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          hide-progress: false
+          format: "sarif"
+          output: "trivy-results.sarif"
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: "CRITICAL"
+          skip-dirs: gh_codescan,security,next-docker
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: "trivy-results.sarif"
+
+      - name: Check
+        run: cat trivy-results.sarif
+
   deploy-infra:
     #needs: security_check
     runs-on: ubuntu-latest
