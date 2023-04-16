@@ -3,7 +3,7 @@
 # ====================
 resource "aws_lb" "for_webserver" {
   name               = "${var.env}-${var.service}-alb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
 
   security_groups = [
