@@ -29,6 +29,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "config"
+          scan-ref: "modules"
           hide-progress: false
           format: "sarif"
           output: "trivy-results.sarif"
@@ -41,7 +42,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: "trivy-results.sarif"
-          category: results
+          #category: results
 
       - name: check
         run: cat trivy-results.sarif
